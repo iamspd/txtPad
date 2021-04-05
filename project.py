@@ -1,27 +1,20 @@
-import tkinter
 import os
 from tkinter import *
+from tkinter import font
 from tkinter.messagebox import *
 from tkinter.filedialog import *
-import random
-try:
-
-    import tkinter.ttk as ttk
-    import tkinter.font as font
-except ImportError: # Python 2
-    import Tkinter as Tk
-    import ttk
-    import tkFont as font
-
-
+import tkinter as tk
+    
 class txtDoc:
 
-    __root = Tk()
+    __root = tk.Tk()
+
+    #button.pack() # Displaying the button
 
     # default window width and height
     __thisWidth = 6000
     __thisHeight = 6000
-    __thisTextArea = Text(__root)
+    __thisTextArea = tk.Text(__root)
     __thisMenuBar = Menu(__root)
     __thisFileMenu = Menu(__thisMenuBar, tearoff=0)
     __thisEditMenu = Menu(__thisMenuBar, tearoff=0)
@@ -53,12 +46,17 @@ class txtDoc:
             pass
 
         # Set the window text
-        self.__root.title("COMP 216 Project - Group 2 - txtDoc")
+        self.__root.title("TxtPad - COMP216 Project, Group 2")
 
         # Center the window
         screenWidth = self.__root.winfo_screenwidth()
         screenHeight = self.__root.winfo_screenheight()
-        MyFont = font.Font(family='Helvetica', size=20, weight='bold')
+
+        # defining the font-size and type 
+        self.customFont = font.Font(family="Helvetica", size=12)
+
+        # assigning the defined fonts to the textArea
+        self.__thisTextArea = tk.Text(self.__root, font=self.customFont, undo=True)
 
         # For left-alling
         left = (screenWidth / 2) - (self.__thisWidth / 2)
@@ -81,6 +79,8 @@ class txtDoc:
         # To open new file
         self.__thisFileMenu.add_command(label="New", command=self.__newFile)
 
+        # self.__thisFileMenu.add_command(label="Theme", command=self.__changeTheme)
+
         # To open a already existing file
         self.__thisFileMenu.add_command(label="Open", command=self.__openFile)
 
@@ -95,10 +95,16 @@ class txtDoc:
         self.__thisFileMenu.add_command(label="Exit", command=self.__quitApplication)
         self.__thisMenuBar.add_cascade(label="File", menu=self.__thisFileMenu)
 
-        #------------------------------------------------------        
+        #------------------------------------------------------
+
+        # To give a feature of undo
+        self.__thisEditMenu.add_command(label="Undo", command=self.__thisTextArea.edit_undo)
+
+        # To give a feature of redo
+        self.__thisEditMenu.add_command(label="Redo", command=self.__thisTextArea.edit_redo)        
 
         # To give a feature of cut
-        self.__thisEditMenu.add_command(label="Delete", command=self.__delete)
+        self.__thisEditMenu.add_command(label="Cut", command=self.__delete)
 
         # to give a feature of copy
         self.__thisEditMenu.add_command(label="Copy", command=self.__copy)
@@ -106,16 +112,29 @@ class txtDoc:
         # To give a feature of paste
         self.__thisEditMenu.add_command(label="Paste", command=self.__paste)
 
-        # To give a feature of undo
-        self.__thisEditMenu.add_command(label="Undo", command=self.__undo)
+        ''' # To give a feature of cut
+        self.__thisEditMenu.add_command(label="Cut", command=self.__cut) '''
 
         # To give a feature of editing
         self.__thisMenuBar.add_cascade(label="Edit", menu=self.__thisEditMenu)
 
-        self.__thisMenuBar.add_cascade(label="Font", menu=self.__thisFontMenu)       
+        # To give a feature of font operations
+        self.__thisMenuBar.add_cascade(label="Font", menu=self.__thisFontMenu) 
 
-        # To create a feature of description of the txtDoc
-        self.__thisAboutMenu.add_command(label="About txtDoc", command=self.__showAbout)
+        # To bold the fonts
+        self.__thisFontMenu.add_command(label="Bold", command=self.__onBold)
+
+        # To italic the fonts
+        self.__thisFontMenu.add_command(label="Italic", command=self.__onItalic)
+
+        # To increase the size of the fonts
+        self.__thisFontMenu.add_command(label="Increase", command=self.__onBigger)
+
+        # To decrease the size of the fonts
+        self.__thisFontMenu.add_command(label="Decrease", command=self.__onSmaller)      
+
+        # To create a feature of description of the TxtPad
+        self.__thisAboutMenu.add_command(label="About TxtPad 1.0", command=self.__showAbout)
         self.__thisMenuBar.add_cascade(label="About", menu=self.__thisAboutMenu)
 
         self.__root.config(menu=self.__thisMenuBar)
@@ -130,8 +149,51 @@ class txtDoc:
         self.__root.destroy()
         # exit()
 
+    '''def __changeTheme(self):
+        self.__root.configure(bg="red")
+        print('hello) '''
+
+    def __onBigger(self):
+        '''Make the font 2 points bigger'''
+        size = self.customFont['size']
+        self.customFont.configure(size=size+2)
+
+    def __onSmaller(self):
+        '''Make the font 2 points smaller'''
+        size = self.customFont['size']
+        self.customFont.configure(size=size-2)
+
+    def __onBold(self):
+        # make the fonts bold
+        bold_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        bold_font.configure(weight="bold")
+
+        self.__thisTextArea.tag_configure("bold", font=bold_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "bold" in current_tags:
+            self.__thisTextArea.tag_remove("bold", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("bold", "sel.first", "sel.last")
+
+    def __onItalic(self):
+        italic_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        italic_font.configure(slant="italic")
+
+        self.__thisTextArea.tag_configure("italic", font=italic_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "italic" in current_tags:
+            self.__thisTextArea.tag_remove("italic", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("italic", "sel.first", "sel.last")
+
+
+
     def __showAbout(self):
-        showinfo("Group Project 216 Group 2 ")
+        showinfo(title="TxtPad 1.0", message="COMP216 Project, Group 2")
 
     def __openFile(self):
 
@@ -158,9 +220,10 @@ class txtDoc:
             file.close()
 
     def __newFile(self):
-        self.__root.title("Untitled - txtDoc")
+        self.__root.title("Untitled - TxtPad")
         self.__file = None
         self.__thisTextArea.delete(1.0, END)
+
 
     def __saveFile(self):
 
@@ -182,7 +245,7 @@ class txtDoc:
                 file.close()
 
                 # Change the window title
-                self.__root.title(os.path.basename(self.__file) + " - txtDoc")
+                self.__root.title(os.path.basename(self.__file) + " - TxtPad")
 
         else:
             file = open(self.__file, "w")
@@ -210,13 +273,12 @@ class txtDoc:
                 file.close()
 
                 # Change the window title
-                self.__root.title(os.path.basename(self.__file) + " - txtDoc")
+                self.__root.title(os.path.basename(self.__file) + " - TxtPad")
 
         else:
             file = open(self.__file, "w")
             file.write(self.__thisTextArea.get(1.0, END))
             file.close()
-
 
     def __paste(self):
         self.__thisTextArea.event_generate("<<Paste>>")
@@ -224,15 +286,19 @@ class txtDoc:
         self.__thisTextArea.event_generate("<<Copy>>")
     def __delete(self):
         self.__thisTextArea.event_generate("<<Clear>>")
-    def __undo(self):
-        self.__thisTextArea.event_generate("<<Undo>>")
-        root.mainloop()
+
+    ''' def __cut(self):
+        if self.__thisTextArea.selection_get():
+            selected = self.__thisTextArea.selection_get()
+            self.__thisTextArea.delete("sel.first", "sel.last") '''      
+
     def run(self):
 
         # Run main application
         self.__root.mainloop()
-
+        
+   
 
 # Run main application
-txtDoc = txtDoc(width=1000, height=800)
+txtDoc = txtDoc(width=800, height=450)
 txtDoc.run()
