@@ -115,6 +115,14 @@ class txtDoc:
         ''' # To give a feature of cut
         self.__thisEditMenu.add_command(label="Cut", command=self.__cut) '''
 
+        self.__thisEditMenu.add_separator()
+
+        # To give a feature of paste
+        self.__thisEditMenu.add_command(label="Find", command=self.__find)
+
+        # To give a feature of paste
+        self.__thisEditMenu.add_command(label="Replace", command=self.__replace)
+
         # To give a feature of editing
         self.__thisMenuBar.add_cascade(label="Edit", menu=self.__thisEditMenu)
 
@@ -148,6 +156,75 @@ class txtDoc:
     def __quitApplication(self):
         self.__root.destroy()
         # exit()
+
+    def __find(self):
+        window = Tk()
+        window.title("Find")
+        windowWidth = window.winfo_reqwidth() + 300 
+        windowHeight = window.winfo_reqheight()
+        positionRight = int(window.winfo_screenwidth()/2 - windowWidth/2) 
+        positionDown = int(window.winfo_screenheight()/2 - windowHeight/2)
+        window.geometry("+{}+{}".format(positionRight, positionDown))
+        window.geometry('250x100')
+        lblFind = Label(window, text='Find')
+        lblFind.grid(column = 0, row = 0, sticky = (W, E), padx = 20, pady = 10)
+        txtFind = Entry(window)
+        txtFind.grid(column = 1, row = 0, sticky = (W))
+        def find(*args):
+            self.__thisTextArea.tag_remove('Find', '1.0', END)
+            findText = txtFind.get()
+            if (findText):
+                index = '1.0'
+                while True:
+                    index = self.__thisTextArea.search(findText, index, stopindex = END)
+                    if not index :
+                        break
+                    last = '% s+% dc' % (index, len(findText))
+                    self.__thisTextArea.tag_add('Find', index, last)
+                    index = last
+                self.__thisTextArea.tag_config('Find', foreground = 'green')
+        btnFind = Button(window, text='Find', command = find)
+        btnFind.grid(column = 1, row = 1, sticky = (W, E), padx = 5, pady = 10)
+        window.mainloop()
+
+
+    def __replace(self):
+        window = Tk()
+        window.title("Replace")
+        windowWidth = window.winfo_reqwidth() + 300 
+        windowHeight = window.winfo_reqheight()
+        positionRight = int(window.winfo_screenwidth()/2 - windowWidth/2) 
+        positionDown = int(window.winfo_screenheight()/2 - windowHeight/2)
+        window.geometry("+{}+{}".format(positionRight, positionDown))
+        window.geometry('300x150')
+        lblFind = Label(window, text='Find')
+        lblFind.grid(column = 0, row = 0, sticky = (W, E), padx = 10, pady = 10)
+        txtFind = Entry(window)
+        txtFind.grid(column = 1, row = 0, sticky = (W))
+        lblReplace = Label(window, text='Replace with')
+        lblReplace.grid(column = 0, row = 1, sticky = (W, E), padx = 10, pady = 10)
+        txtReplace = Entry(window)
+        txtReplace.grid(column = 1, row = 1, sticky = (W))
+        def replace(*args):
+            self.__thisTextArea.tag_remove('Replace', '1.0', END)
+            findText = txtFind.get()
+            replaceText = txtReplace.get()
+            if (findText and replaceText):
+                index = '1.0'
+                while True:
+                    index = self.__thisTextArea.search(findText, index, stopindex = END)
+                    if not index :
+                        break
+                    l = '% s+% dc' % (index, len(findText))
+                    self.__thisTextArea.delete(index, l)
+                    self.__thisTextArea.insert(index, replaceText)
+                    last = '% s+% dc' % (index, len(replaceText))
+                    self.__thisTextArea.tag_add('Replace', index, last)
+                    index = last
+                self.__thisTextArea.tag_config('Replace', foreground = 'blue')
+        btnReplace = Button(window, text='Replace', command = replace)
+        btnReplace.grid(column = 1, row = 2, sticky = (W, E), padx = 5, pady = 10)
+        window.mainloop()
 
     '''def __changeTheme(self):
         self.__root.configure(bg="red")
