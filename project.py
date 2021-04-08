@@ -19,6 +19,9 @@ class txtDoc:
     __thisFileMenu = Menu(__thisMenuBar, tearoff=0)
     __thisEditMenu = Menu(__thisMenuBar, tearoff=0)
     __thisFontMenu = Menu(__thisMenuBar, tearoff=0)
+    __thisFontFamilyMenu = Menu(__thisFontMenu, tearoff=0)
+    __thisFontWeightMenu = Menu(__thisFontMenu, tearoff=0)
+    __thisFontSizeMenu = Menu(__thisFontMenu, tearoff=0)
     __thisAboutMenu = Menu(__thisMenuBar, tearoff=0)
 
     # To add scrollbar
@@ -130,16 +133,46 @@ class txtDoc:
         self.__thisMenuBar.add_cascade(label="Font", menu=self.__thisFontMenu) 
 
         # To bold the fonts
-        self.__thisFontMenu.add_command(label="Bold", command=self.__onBold)
+        self.__thisFontMenu.add_cascade(label="Font Family", menu=self.__thisFontFamilyMenu)
+
+        for i in ("Arial Black", "Verdana", "Times New Roman"):
+            if (i == "Arial Black"):
+                self.__thisFontFamilyMenu.add_command(label=i, command=self.__onArial)
+            if (i == "Verdana"):
+                self.__thisFontFamilyMenu.add_command(label=i, command=self.__onVerdana)
+            if (i == "Times New Roman"):
+                self.__thisFontFamilyMenu.add_command(label=i, command=self.__onTimes)
 
         # To italic the fonts
-        self.__thisFontMenu.add_command(label="Italic", command=self.__onItalic)
+        self.__thisFontMenu.add_cascade(label="Font Weight", menu=self.__thisFontWeightMenu)
+
+        for i in ("Bold", "Italic", "Underline"):
+            if (i == "Bold"):
+                self.__thisFontWeightMenu.add_command(label=i, command=self.__onBold)
+            if (i == "Italic"):
+                self.__thisFontWeightMenu.add_command(label=i, command=self.__onItalic)
+            if (i == "Underline"):
+                self.__thisFontWeightMenu.add_command(label=i, command=self.__onUnderline)
 
         # To increase the size of the fonts
-        self.__thisFontMenu.add_command(label="Increase", command=self.__onBigger)
+        self.__thisFontMenu.add_cascade(label="Font Size", menu=self.__thisFontSizeMenu)
+
+        for i in ("12", "14", "16", "18", "20"):
+            if (i == "12"):
+                self.__thisFontSizeMenu.add_command(label=i, command=self.__onTwelve)
+            if (i == "14"):
+                self.__thisFontSizeMenu.add_command(label=i, command=self.__onFourteen)
+            if (i == "16"):
+                self.__thisFontSizeMenu.add_command(label=i, command=self.__onSixteen)
+            if (i == "18"):
+                self.__thisFontSizeMenu.add_command(label=i, command=self.__onEighteen)
+            if (i == "20"):
+                self.__thisFontSizeMenu.add_command(label=i, command=self.__onTwenty)
+
+        self.__thisFontMenu.add_command(label="Increase Font Size", command=self.__onBigger)
 
         # To decrease the size of the fonts
-        self.__thisFontMenu.add_command(label="Decrease", command=self.__onSmaller)      
+        self.__thisFontMenu.add_command(label="Decrease Font Size", command=self.__onSmaller)      
 
         # To create a feature of description of the TxtPad
         self.__thisAboutMenu.add_command(label="About TxtPad 1.0", command=self.__showAbout)
@@ -226,19 +259,47 @@ class txtDoc:
         btnReplace.grid(column = 1, row = 2, sticky = (W, E), padx = 5, pady = 10)
         window.mainloop()
 
-    '''def __changeTheme(self):
-        self.__root.configure(bg="red")
-        print('hello) '''
+    def __changeTheme(self):
+        self.__thisTextArea.configure(bg='blue')
 
-    def __onBigger(self):
-        '''Make the font 2 points bigger'''
-        size = self.customFont['size']
-        self.customFont.configure(size=size+2)
+    def __onArial(self):
+        arial_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        arial_font.configure(family="Arial Black")
 
-    def __onSmaller(self):
-        '''Make the font 2 points smaller'''
-        size = self.customFont['size']
-        self.customFont.configure(size=size-2)
+        self.__thisTextArea.tag_configure("arial", font=arial_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "arial" in current_tags:
+            self.__thisTextArea.tag_remove("arial", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("arial", "sel.first", "sel.last")
+
+    def __onVerdana(self):
+        verdana_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        verdana_font.configure(family="Verdana")
+
+        self.__thisTextArea.tag_configure("verdana", font=verdana_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "verdana" in current_tags:
+            self.__thisTextArea.tag_remove("verdana", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("verdana", "sel.first", "sel.last")
+
+    def __onTimes(self):
+        times_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        times_font.configure(family="Times New Roman")
+
+        self.__thisTextArea.tag_configure("times", font=times_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "times" in current_tags:
+            self.__thisTextArea.tag_remove("times", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("times", "sel.first", "sel.last")
 
     def __onBold(self):
         # make the fonts bold
@@ -267,7 +328,44 @@ class txtDoc:
         else:
             self.__thisTextArea.tag_add("italic", "sel.first", "sel.last")
 
+    def __onUnderline(self):
+        underline_font = font.Font(self.__thisTextArea, self.__thisTextArea.cget("font"))
+        underline_font.configure(underline = True)
 
+        self.__thisTextArea.tag_configure("underline", font=underline_font)
+
+        current_tags = self.__thisTextArea.tag_names("sel.first")
+
+        if "underline" in current_tags:
+            self.__thisTextArea.tag_remove("underline", "sel.first", "sel.last")
+        else:
+            self.__thisTextArea.tag_add("underline", "sel.first", "sel.last")
+
+    def __onTwelve(self):
+        self.customFont.configure(size=12)
+
+    def __onFourteen(self):
+        self.customFont.configure(size=14)
+
+    def __onSixteen(self):
+        self.customFont.configure(size=16)
+
+    def __onEighteen(self):
+        self.customFont.configure(size=18)
+
+    def __onTwenty(self):
+        self.customFont.configure(size=20)
+
+
+    def __onBigger(self):
+        '''Make the font 2 points bigger'''
+        size = self.customFont['size']
+        self.customFont.configure(size=size+2)
+
+    def __onSmaller(self):
+        '''Make the font 2 points smaller'''
+        size = self.customFont['size']
+        self.customFont.configure(size=size-2)
 
     def __showAbout(self):
         showinfo(title="TxtPad 1.0", message="COMP216 Project, Group 2")
@@ -374,8 +472,6 @@ class txtDoc:
         # Run main application
         self.__root.mainloop()
         
-   
-
 # Run main application
 txtDoc = txtDoc(width=800, height=450)
 txtDoc.run()
