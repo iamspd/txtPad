@@ -4,6 +4,13 @@ from tkinter import font
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import tkinter as tk
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import os.path
+import pathlib
     
 class txtDoc:
 
@@ -22,6 +29,8 @@ class txtDoc:
     __thisFontFamilyMenu = Menu(__thisFontMenu, tearoff=0)
     __thisFontWeightMenu = Menu(__thisFontMenu, tearoff=0)
     __thisFontSizeMenu = Menu(__thisFontMenu, tearoff=0)
+    __thisThemesMenu = Menu(__thisFontMenu, tearoff=0)
+    __thisShareMenu = Menu(__thisMenuBar, tearoff=0)
     __thisAboutMenu = Menu(__thisMenuBar, tearoff=0)
 
     # To add scrollbar
@@ -131,7 +140,8 @@ class txtDoc:
 
         # To give a feature of font operations
         self.__thisMenuBar.add_cascade(label="Font", menu=self.__thisFontMenu) 
-
+        # To share a file via gmail
+        self.__thisMenuBar.add_cascade(label="Share",command=self.__showShare)
         # To bold the fonts
         self.__thisFontMenu.add_cascade(label="Font Family", menu=self.__thisFontFamilyMenu)
 
@@ -168,7 +178,20 @@ class txtDoc:
                 self.__thisFontSizeMenu.add_command(label=i, command=self.__onEighteen)
             if (i == "20"):
                 self.__thisFontSizeMenu.add_command(label=i, command=self.__onTwenty)
+        
+        # To change the theme the background and the font color 
+        
+        self.__thisFontMenu.add_cascade(label="Themes", menu=self.__thisThemesMenu)
 
+        for i in("Blue Color", "Yellow Color","Green Color"):
+            if(i=="Blue Color"):
+                self.__thisThemesMenu.add_command(label=i, command=self.__onChangeBlue)
+            if(i=="Yellow Color"):
+                self.__thisThemesMenu.add_command(label=i, command=self.__onChangeYellow)
+            if(i=="Green Color"):
+                self.__thisThemesMenu.add_command(label=i, command=self.__onChangeGreen)
+            
+        self.__thisFontMenu.add_separator()
         self.__thisFontMenu.add_command(label="Increase Font Size", command=self.__onBigger)
 
         # To decrease the size of the fonts
@@ -355,7 +378,18 @@ class txtDoc:
 
     def __onTwenty(self):
         self.customFont.configure(size=20)
+    
+    def __onChangeBlue(self):
+        self.__root.config(bg="lightgreen")
+        self.__thisTextArea.config(bg="lightBlue",fg="black")
 
+    def __onChangeGreen(self):
+        self.__root.config(bg="lightgreen")
+        self.__thisTextArea.config(bg="lightGreen",fg="black")
+
+    def __onChangeYellow(self):
+        self.__root.config(bg="lightgreen")
+        self.__thisTextArea.config(bg="lightYellow",fg="black")
 
     def __onBigger(self):
         '''Make the font 2 points bigger'''
@@ -369,7 +403,61 @@ class txtDoc:
 
     def __showAbout(self):
         showinfo(title="TxtPad 1.0", message="COMP216 Project, Group 2")
+    def __showShare(self):
+        root1 = Tk()
 
+        windowWidth = root1.winfo_reqwidth() + 300 
+        windowHeight = root1.winfo_reqheight()
+        positionRight = int(root1.winfo_screenwidth()/2 - windowWidth/2) 
+        positionDown = int(root1.winfo_screenheight()/2 - windowHeight/2)
+        root1.geometry("+{}+{}".format(positionRight, positionDown))
+        root1.geometry('400x200')
+        #Providing title to the form
+        root1.title('Sent email ')
+        #this creates 'Label' widget for Email and uses place() method.
+        lblEmail = Label(root1, text='Email')
+        lblEmail.grid(column = 0, row = 0, sticky = (W, E), padx = 20, pady = 10, ipadx=20,ipady=10)
+        txtEmail = Entry(root1)
+        #txtEmail.place()
+        txtEmail.grid(column = 1, row = 0, sticky = (W), ipadx = 20, ipady = 10)
+       
+        def SendMail(*args):
+            sender_email = "network216comp@gmail.com"
+            receiver_email = txtEmail.get()
+            message = MIMEMultipart()
+            message=MIMEMultipart()
+            message["From"] = sender_email
+            message['To'] = receiver_email
+            message['Subject'] = "sending mail using python"
+            
+            name=os.path.basename(self.__file)
+            path=os.path.dirname(self.__file)
+
+            file = path+"\\"+name
+            attachment = open(file,'rb')
+
+            obj = MIMEBase('application','octet-stream')
+
+            obj.set_payload((attachment).read())
+            encoders.encode_base64(obj)
+            obj.add_header('Content-Disposition',"attachment; filename= "+file)
+
+            message.attach(obj)
+           
+            my_message = message.as_string()
+            email_session = smtplib.SMTP('smtp.gmail.com',587)
+            email_session.starttls()
+            email_session.login(sender_email,"Comp216005")
+            
+            email_session.sendmail(sender_email,receiver_email,my_message)
+            email_session.quit()
+            print("YOUR MAIL HAS BEEN SENT SUCCESSFULLY")
+
+
+        btnEmail = Button(root1, text='Send', command = SendMail)
+        btnEmail.grid(column = 1, row = 1, sticky = (W, E), padx = 5, pady = 10)
+
+        root1.mainloop()
     def __openFile(self):
 
         self.__file = askopenfilename(
